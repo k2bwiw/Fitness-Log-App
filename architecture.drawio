@@ -1,9 +1,36 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 OPR/127.0.0.0" version="29.6.1">
   <diagram name="Page-1" id="YlBcdbmcXyAQFkykei1o">
-    <mxGraphModel>
+    <mxGraphModel dx="1424" dy="744" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-5" edge="1" parent="1" source="Ndx6_BKuPalMAqxxl3m5-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ndx6_BKuPalMAqxxl3m5-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="User" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-7" edge="1" parent="1" source="Ndx6_BKuPalMAqxxl3m5-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ndx6_BKuPalMAqxxl3m5-6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-4" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Java GUI" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-9" edge="1" parent="1" source="Ndx6_BKuPalMAqxxl3m5-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ndx6_BKuPalMAqxxl3m5-8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-6" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Application Logic: Logging workout and meal records, see history, set goals" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-11" edge="1" parent="1" source="Ndx6_BKuPalMAqxxl3m5-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="Ndx6_BKuPalMAqxxl3m5-10" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-8" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="JDBC Connection" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="Ndx6_BKuPalMAqxxl3m5-10" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="SQL Database" vertex="1">
+          <mxGeometry height="60" width="120" x="350" y="900" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
