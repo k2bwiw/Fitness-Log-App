@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=MealRecord
+comment1.params=mealId\ userId\ date\ mealType\ notes
+comment1.target=MealRecord(int,\ int,\ java.lang.String,\ java.lang.String,\ java.lang.String)
+comment2.params=
+comment2.target=void\ addMeal()
+comment3.params=
+comment3.target=void\ deleteMeal()
+numComments=4

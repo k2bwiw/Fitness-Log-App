@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=FoodItem
+comment1.params=foodItemId\ mealId\ name\ quantity\ unit\ calories\ proteinG\ carbsG\ fatG
+comment1.target=FoodItem(int,\ int,\ java.lang.String,\ double,\ java.lang.String,\ int,\ double,\ double,\ double)
+comment2.params=
+comment2.target=int\ calculateCalories()
+numComments=3

@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=Goal
+comment1.params=goalId\ userId\ goalType\ targetValue\ startDate\ endDate\ isActive
+comment1.target=Goal(int,\ int,\ java.lang.String,\ double,\ java.lang.String,\ java.lang.String,\ boolean)
+comment2.params=
+comment2.target=void\ setGoal()
+numComments=3

@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=WorkoutRecord
+comment1.params=workoutId\ userId\ date\ workoutType\ notes
+comment1.target=WorkoutRecord(int,\ int,\ java.lang.String,\ java.lang.String,\ java.lang.String)
+comment2.params=
+comment2.target=void\ addWorkout()
+comment3.params=
+comment3.target=void\ deleteWorkout()
+numComments=4
