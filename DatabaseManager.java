@@ -152,7 +152,6 @@ public class DatabaseManager {
     public List<String[]> getHistory(int userId) {
         List<String[]> rows = new ArrayList<>();
 
-        // Meals
         String mealSql =
             "SELECT m.Date, m.mealType, f.Name, f.Calories " +
             "FROM MealRecord m " +
@@ -160,7 +159,6 @@ public class DatabaseManager {
             "WHERE m.userId = ? " +
             "ORDER BY m.Date DESC";
 
-        // Workouts
         String workoutSql =
             "SELECT w.Date, w.workoutType, e.Name, 0 AS Calories " +
             "FROM WorkoutRecord w " +
@@ -197,7 +195,6 @@ public class DatabaseManager {
             System.out.println("Error fetching history: " + e.getMessage());
         }
 
-        // Sort all rows by date descending
         rows.sort((a, b) -> b[0].compareTo(a[0]));
         return rows;
     }
@@ -212,12 +209,12 @@ public class DatabaseManager {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 rows.add(new String[]{
-                    String.valueOf(rs.getInt("goalId")),
                     rs.getString("goalType"),
                     String.valueOf(rs.getDouble("targetValue")),
                     rs.getString("startDate"),
                     rs.getString("endDate"),
-                    rs.getBoolean("isActive") ? "Yes" : "No"
+                    rs.getBoolean("isActive") ? "Yes" : "No",
+                    String.valueOf(rs.getInt("goalId"))
                 });
             }
         } catch (SQLException e) {
@@ -254,5 +251,112 @@ public class DatabaseManager {
             System.out.println("Error deleting goal: " + e.getMessage());
             return false;
         }
+    }
+
+    // ── TODAY'S SUMMARY ───────────────────────────────────────────────
+    // Returns int[3]: [totalCalories, workoutCount, mealCount]
+    public int[] getTodaySummary(int userId) {
+        int[] result = {0, 0, 0};
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+
+        try (Connection conn = connect()) {
+            // Total calories from food items today
+            PreparedStatement s1 = conn.prepareStatement(
+                "SELECT ISNULL(SUM(f.Calories), 0) " +
+                "FROM MealRecord m JOIN FoodItem f ON m.mealId = f.mealId " +
+                "WHERE m.userId = ? AND CAST(m.Date AS DATE) = ?");
+            s1.setInt(1, userId);
+            s1.setString(2, today);
+            ResultSet r1 = s1.executeQuery();
+            if (r1.next()) result[0] = r1.getInt(1);
+            r1.close(); s1.close();
+
+            // Workout count today
+            PreparedStatement s2 = conn.prepareStatement(
+                "SELECT COUNT(*) FROM WorkoutRecord WHERE userId = ? AND CAST(Date AS DATE) = ?");
+            s2.setInt(1, userId);
+            s2.setString(2, today);
+            ResultSet r2 = s2.executeQuery();
+            if (r2.next()) result[1] = r2.getInt(1);
+            r2.close(); s2.close();
+
+            // Meal count today
+            PreparedStatement s3 = conn.prepareStatement(
+                "SELECT COUNT(*) FROM MealRecord WHERE userId = ? AND CAST(Date AS DATE) = ?");
+            s3.setInt(1, userId);
+            s3.setString(2, today);
+            ResultSet r3 = s3.executeQuery();
+            if (r3.next()) result[2] = r3.getInt(1);
+            r3.close(); s3.close();
+
+        } catch (SQLException e) {
+            System.out.println("getTodaySummary error: " + e.getMessage());
+        }
+        return result;
+    }
+
+    // ── WORKOUT HISTORY ───────────────────────────────────────────────
+    // Returns rows of: { Date, WorkoutType, ExerciseName, Sets, Reps, WeightKg, DurationMin }
+    public List<String[]> getWorkoutHistory(int userId) {
+        List<String[]> rows = new ArrayList<>();
+        String sql =
+            "SELECT w.Date, w.workoutType, e.Name, e.Sets, e.Reps, e.weightKg, e.durationMin " +
+            "FROM WorkoutRecord w " +
+            "LEFT JOIN Exercise e ON w.workoutId = e.workoutId " +
+            "WHERE w.userId = ? " +
+            "ORDER BY w.Date DESC";
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                rows.add(new String[]{
+                    rs.getString("Date"),
+                    rs.getString("workoutType"),
+                    rs.getString("Name"),
+                    String.valueOf(rs.getInt("Sets")),
+                    String.valueOf(rs.getInt("Reps")),
+                    String.valueOf(rs.getDouble("weightKg")),
+                    String.valueOf(rs.getInt("durationMin"))
+                });
+            }
+        } catch (SQLException e) {
+            System.out.println("getWorkoutHistory error: " + e.getMessage());
+        }
+        return rows;
+    }
+
+    // ── FOOD HISTORY ──────────────────────────────────────────────────
+    // Returns rows of: { Date, MealType, FoodName, Quantity, Unit, Calories, ProteinG, CarbsG, FatG }
+    public List<String[]> getFoodHistory(int userId) {
+        List<String[]> rows = new ArrayList<>();
+        String sql =
+            "SELECT m.Date, m.mealType, f.Name, f.Quantity, f.Unit, " +
+            "f.Calories, f.proteinG, f.carbsG, f.fatG " +
+            "FROM MealRecord m " +
+            "JOIN FoodItem f ON m.mealId = f.mealId " +
+            "WHERE m.userId = ? " +
+            "ORDER BY m.Date DESC";
+        try (Connection conn = connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                rows.add(new String[]{
+                    rs.getString("Date"),
+                    rs.getString("mealType"),
+                    rs.getString("Name"),
+                    String.valueOf(rs.getDouble("Quantity")),
+                    rs.getString("Unit"),
+                    String.valueOf(rs.getInt("Calories")),
+                    String.valueOf(rs.getDouble("proteinG")),
+                    String.valueOf(rs.getDouble("carbsG")),
+                    String.valueOf(rs.getDouble("fatG"))
+                });
+            }
+        } catch (SQLException e) {
+            System.out.println("getFoodHistory error: " + e.getMessage());
+        }
+        return rows;
     }
 }

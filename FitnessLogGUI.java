@@ -84,7 +84,7 @@ public class FitnessLogGUI {
         JLabel errorLabel = new JLabel(" ");
         errorLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         errorLabel.setForeground(ERROR_RED);
-        errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        errorLabel.setAlignmentX(Component.LEFT_ALIGNMENT); // CHANGE 5: left-aligned
 
         // Login button
         JButton loginBtn = saveButton("Sign In");
@@ -127,17 +127,23 @@ public class FitnessLogGUI {
         switchRow.add(switchText);
         switchRow.add(signupLink);
 
+        // CHANGE 5: Email and Password labels left-aligned
+        JLabel emailLabel = authFieldLabel("Email");
+        emailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel passLabel = authFieldLabel("Password");
+        passLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         card.add(logo);
         card.add(Box.createVerticalStrut(6));
         card.add(title);
         card.add(Box.createVerticalStrut(4));
         card.add(subtitle);
         card.add(Box.createVerticalStrut(26));
-        card.add(authFieldLabel("Email"));
+        card.add(emailLabel);
         card.add(Box.createVerticalStrut(4));
         card.add(emailField);
         card.add(Box.createVerticalStrut(12));
-        card.add(authFieldLabel("Password"));
+        card.add(passLabel);
         card.add(Box.createVerticalStrut(4));
         card.add(passField);
         card.add(Box.createVerticalStrut(8));
@@ -446,7 +452,9 @@ public class FitnessLogGUI {
         return btn;
     }
 
-    // ── HOME PAGE ────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // HOME PAGE  — CHANGES 1, 2, 3
+    // ══════════════════════════════════════════════════════════════════
     private JScrollPane buildHomePage() {
         JPanel page = scrollPage();
 
@@ -455,26 +463,53 @@ public class FitnessLogGUI {
         greeting.setForeground(TEXT_DARK);
         greeting.setBorder(new EmptyBorder(0, 0, 6, 0));
 
-        JLabel statusPill = pill("● DB connected", TEXT_MID, PILL_BG);
+        // CHANGE 1: removed "● DB connected" pill
+
+        // CHANGE 3: load today's summary from DB
+        int[]    todayStats = new DatabaseManager().getTodaySummary(loggedUserId);
+        // todayStats[0] = total calories, todayStats[1] = workout count, todayStats[2] = meal count
 
         JPanel stats = new JPanel(new GridLayout(1, 3, 10, 0));
         stats.setOpaque(false);
-        stats.add(statCard("🔥", "Calories", "0", "kcal"));
-        stats.add(statCard("🏋️", "Workouts", "0", "done"));
-        stats.add(statCard("🥗", "Meals",    "0", "logged"));
+        stats.add(statCard("🔥", "Calories", String.valueOf(todayStats[0]), "kcal"));
+        stats.add(statCard("🏋️", "Workouts", String.valueOf(todayStats[1]), "done"));
+        stats.add(statCard("🥗", "Meals",    String.valueOf(todayStats[2]), "logged"));
 
+        // CHANGE 2: nicer "no activity" panel with a "Start Logging" button
         JPanel recent = new JPanel();
         recent.setLayout(new BoxLayout(recent, BoxLayout.Y_AXIS));
         recent.setBackground(WHITE);
-        recent.setBorder(new CompoundBorder(new LineBorder(BORDER, 1, true), new EmptyBorder(20, 0, 20, 0)));
-        JLabel empty = new JLabel("No activity yet — start logging!");
-        empty.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        empty.setForeground(TEXT_LIGHT);
-        empty.setAlignmentX(Component.CENTER_ALIGNMENT);
-        recent.add(empty);
+        recent.setBorder(new CompoundBorder(new LineBorder(BORDER, 1, true), new EmptyBorder(28, 20, 28, 20)));
+
+        JLabel emptyIcon = new JLabel("🏃");
+        emptyIcon.setFont(new Font("SansSerif", Font.PLAIN, 36));
+        emptyIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel emptyTitle = new JLabel("No activity yet");
+        emptyTitle.setFont(new Font("SansSerif", Font.BOLD, 15));
+        emptyTitle.setForeground(TEXT_DARK);
+        emptyTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel emptySubtitle = new JLabel("Track your first workout or meal to see it here.");
+        emptySubtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        emptySubtitle.setForeground(TEXT_LIGHT);
+        emptySubtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // CHANGE 2: clicking "Start Logging" navigates to Workout page
+        JButton startBtn = saveButton("🏋️  Start Logging");
+        startBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        startBtn.setMaximumSize(new Dimension(200, 38));
+        startBtn.addActionListener(e -> cardLayout.show(contentPanel, "Workout"));
+
+        recent.add(emptyIcon);
+        recent.add(Box.createVerticalStrut(8));
+        recent.add(emptyTitle);
+        recent.add(Box.createVerticalStrut(4));
+        recent.add(emptySubtitle);
+        recent.add(Box.createVerticalStrut(16));
+        recent.add(startBtn);
 
         page.add(greeting);
-        page.add(statusPill);
         page.add(Box.createVerticalStrut(16));
         page.add(sectionTitle("Today's summary"));
         page.add(stats);
@@ -575,104 +610,118 @@ public class FitnessLogGUI {
         return wrap(page);
     }
 
-    // ── HISTORY PAGE ─────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // HISTORY PAGE — CHANGE 4: separate tables for workouts and food
+    // ══════════════════════════════════════════════════════════════════
     private JScrollPane buildHistoryPage() {
         JPanel page = scrollPage();
         page.add(pageHeader("📋", "History"));
         page.add(Box.createVerticalStrut(14));
 
-        String[] cols = {"Date", "Type", "Details", "Calories"};
-        java.util.List<String[]> historyRows = new DatabaseManager().getHistory(loggedUserId);
+        // ── Workout history table ──
+        page.add(sectionTitle("Workout History"));
+        page.add(Box.createVerticalStrut(6));
 
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(cols, 0) {
+        String[] workoutCols = {"Date", "Type", "Exercise", "Sets", "Reps", "Weight (kg)", "Duration (min)"};
+        java.util.List<String[]> workoutRows = new DatabaseManager().getWorkoutHistory(loggedUserId);
+
+        javax.swing.table.DefaultTableModel workoutModel = new javax.swing.table.DefaultTableModel(workoutCols, 0) {
             public boolean isCellEditable(int row, int col) { return false; }
         };
-        for (String[] row : historyRows) model.addRow(row);
+        for (String[] row : workoutRows) workoutModel.addRow(row);
 
-        JTable table = new JTable(model);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.setRowHeight(28);
-        table.setBackground(WHITE);
-        table.setForeground(TEXT_DARK);
-        table.setGridColor(BORDER);
-        table.getTableHeader().setBackground(PILL_BG);
-        table.getTableHeader().setForeground(TEXT_MID);
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
-        table.setSelectionBackground(ICON_MINT);
+        JTable workoutTable = styledTable(workoutModel);
 
-        JPanel tableCard = card();
-        tableCard.add(new JScrollPane(table), BorderLayout.CENTER);
-        tableCard.setPreferredSize(new Dimension(0, 300));
+        JPanel workoutCard = card();
+        workoutCard.add(new JScrollPane(workoutTable), BorderLayout.CENTER);
+        workoutCard.setPreferredSize(new Dimension(0, 220));
+        workoutCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
 
+        page.add(workoutCard);
+        page.add(Box.createVerticalStrut(20));
+
+        // ── Food history table ──
+        page.add(sectionTitle("Food History"));
+        page.add(Box.createVerticalStrut(6));
+
+        String[] foodCols = {"Date", "Meal Type", "Food Name", "Quantity", "Unit", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)"};
+        java.util.List<String[]> foodRows = new DatabaseManager().getFoodHistory(loggedUserId);
+
+        javax.swing.table.DefaultTableModel foodModel = new javax.swing.table.DefaultTableModel(foodCols, 0) {
+            public boolean isCellEditable(int row, int col) { return false; }
+        };
+        for (String[] row : foodRows) foodModel.addRow(row);
+
+        JTable foodTable = styledTable(foodModel);
+
+        JPanel foodCard = card();
+        foodCard.add(new JScrollPane(foodTable), BorderLayout.CENTER);
+        foodCard.setPreferredSize(new Dimension(0, 220));
+        foodCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+
+        page.add(foodCard);
+        page.add(Box.createVerticalStrut(10));
+
+        // Refresh button refreshes both tables
         JButton refresh = saveButton("↻  Refresh");
         refresh.addActionListener(e -> {
-            model.setRowCount(0);
-            for (String[] row : new DatabaseManager().getHistory(loggedUserId)) model.addRow(row);
+            workoutModel.setRowCount(0);
+            for (String[] row : new DatabaseManager().getWorkoutHistory(loggedUserId)) workoutModel.addRow(row);
+            foodModel.setRowCount(0);
+            for (String[] row : new DatabaseManager().getFoodHistory(loggedUserId)) foodModel.addRow(row);
         });
 
-        if (historyRows.isEmpty()) {
-            JLabel none = new JLabel("No records yet — start logging workouts and meals!");
-            none.setFont(new Font("SansSerif", Font.PLAIN, 13));
-            none.setForeground(TEXT_LIGHT);
-            none.setAlignmentX(Component.LEFT_ALIGNMENT);
-            page.add(none);
-            page.add(Box.createVerticalStrut(10));
-        }
-
-        page.add(tableCard);
-        page.add(Box.createVerticalStrut(10));
         page.add(refresh);
         return wrap(page);
     }
 
-    // ── GOALS PAGE ───────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════
+    // GOALS PAGE — CHANGE 5: centred layout for form and tables
+    // ══════════════════════════════════════════════════════════════════
     private JScrollPane buildGoalsPage() {
         JPanel page = scrollPage();
         page.add(pageHeader("🎯", "Goals"));
         page.add(Box.createVerticalStrut(16));
 
-        // ── Add goal form ──
+        // ── Add goal form — centred ──
         page.add(sectionTitle("Add a new goal"));
         page.add(Box.createVerticalStrut(8));
 
-        JPanel form = formPanel();
-
-        JTextField typeField  = styledField();
+        JTextField typeField   = styledField();
         JTextField targetField = styledField();
-        JTextField startField = styledField();
-        JTextField endField   = styledField();
+        JTextField startField  = styledField();
+        JTextField endField    = styledField();
 
         String today = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
         startField.setText(today);
 
+        JPanel form = formPanel();
         form.add(formRow("Goal Type (e.g. calories)", typeField));
         form.add(formRow("Target Value",              targetField));
         form.add(formRow("Start Date (YYYY-MM-DD)",   startField));
         form.add(formRow("End Date (YYYY-MM-DD)",     endField));
 
-        page.add(form);
+        // Centre the form panel
+        JPanel formWrapper = new JPanel(new GridBagLayout());
+        formWrapper.setOpaque(false);
+        formWrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
+        formWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        form.setPreferredSize(new Dimension(480, 200));
+        formWrapper.add(form);
+
+        page.add(formWrapper);
         page.add(Box.createVerticalStrut(12));
 
-        // ── Goals table ──
+        // ── Goals table — centred ──
         String[] cols = {"Goal Type", "Target", "Start Date", "End Date", "Active", "ID"};
         javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(cols, 0) {
             public boolean isCellEditable(int row, int col) { return false; }
         };
 
-        // Load existing goals
         for (String[] row : new DatabaseManager().getGoals(loggedUserId)) model.addRow(row);
 
-        JTable table = new JTable(model);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.setRowHeight(28);
-        table.setBackground(WHITE);
-        table.setForeground(TEXT_DARK);
-        table.setGridColor(BORDER);
-        table.getTableHeader().setBackground(PILL_BG);
-        table.getTableHeader().setForeground(TEXT_MID);
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
-        table.setSelectionBackground(ICON_MINT);
-        // Hide the ID column (used internally for delete)
+        JTable table = styledTable(model);
+        // Hide the ID column
         table.getColumnModel().getColumn(5).setMinWidth(0);
         table.getColumnModel().getColumn(5).setMaxWidth(0);
         table.getColumnModel().getColumn(5).setWidth(0);
@@ -681,16 +730,20 @@ public class FitnessLogGUI {
         tableCard.add(new JScrollPane(table), BorderLayout.CENTER);
         tableCard.setPreferredSize(new Dimension(0, 200));
 
-        // ── Buttons row ──
-        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        btnRow.setOpaque(false);
+        JPanel tableWrapper = new JPanel(new GridBagLayout());
+        tableWrapper.setOpaque(false);
+        tableWrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
+        tableWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 220));
+        tableCard.setPreferredSize(new Dimension(520, 200));
+        tableWrapper.add(tableCard);
 
+        // ── Buttons row — centred ──
         JButton addBtn = saveButton("Save Goal");
         addBtn.addActionListener(e -> {
-            String goalType = typeField.getText().trim();
+            String goalType  = typeField.getText().trim();
             String targetStr = targetField.getText().trim();
-            String start = startField.getText().trim();
-            String end   = endField.getText().trim();
+            String start     = startField.getText().trim();
+            String end       = endField.getText().trim();
 
             if (goalType.isEmpty() || targetStr.isEmpty() || start.isEmpty() || end.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -733,6 +786,10 @@ public class FitnessLogGUI {
             }
         });
 
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        btnRow.setOpaque(false);
+        btnRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btnRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         btnRow.add(addBtn);
         btnRow.add(deleteBtn);
 
@@ -740,7 +797,7 @@ public class FitnessLogGUI {
         page.add(Box.createVerticalStrut(20));
         page.add(sectionTitle("Your goals"));
         page.add(Box.createVerticalStrut(8));
-        page.add(tableCard);
+        page.add(tableWrapper);
 
         return wrap(page);
     }
@@ -748,6 +805,20 @@ public class FitnessLogGUI {
     // ══════════════════════════════════════════════════════════════════
     // HELPERS
     // ══════════════════════════════════════════════════════════════════
+
+    private JTable styledTable(javax.swing.table.DefaultTableModel model) {
+        JTable table = new JTable(model);
+        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        table.setRowHeight(28);
+        table.setBackground(WHITE);
+        table.setForeground(TEXT_DARK);
+        table.setGridColor(BORDER);
+        table.getTableHeader().setBackground(PILL_BG);
+        table.getTableHeader().setForeground(TEXT_MID);
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 12));
+        table.setSelectionBackground(ICON_MINT);
+        return table;
+    }
 
     private JPanel scrollPage() {
         JPanel p = new JPanel();
