@@ -4,4 +4,5 @@ comment1.params=exerciseId\ workoutId\ name\ sets\ reps\ weightKg\ durationMin
 comment1.target=Exercise(int,\ int,\ java.lang.String,\ int,\ int,\ double,\ int)
 comment2.params=
 comment2.target=void\ calculateVolume()
+comment2.text=Calculating\ the\ volume\ of\ trainings
 numComments=3

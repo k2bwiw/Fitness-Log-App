@@ -15,11 +15,11 @@ public class WorkoutRecord {
         this.notes = notes;
 
     }
-
+    /* Adding workout */
     public void addWorkout() {
         System.out.println("Workout added: " + workoutType);
     }
-
+    /* Deleting workout */
     public void deleteWorkout() {
         System.out.println("Workout deleted");
     }

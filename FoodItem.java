@@ -9,7 +9,7 @@ public class FoodItem {
     private double proteinG;
     private double carbsG;
     private double fatG;
-
+    /* Adding food item */
     public FoodItem(int foodItemId, int mealId, String name, double quantity, String unit,
                     int calories, double proteinG, double carbsG, double fatG) {
 
@@ -24,7 +24,7 @@ public class FoodItem {
         this.fatG = fatG;
 
     }
-
+    
     public int calculateCalories() {
         return calories;
     }

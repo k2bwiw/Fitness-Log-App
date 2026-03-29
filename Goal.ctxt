@@ -4,4 +4,5 @@ comment1.params=goalId\ userId\ goalType\ targetValue\ startDate\ endDate\ isAct
 comment1.target=Goal(int,\ int,\ java.lang.String,\ double,\ java.lang.String,\ java.lang.String,\ boolean)
 comment2.params=
 comment2.target=void\ setGoal()
+comment2.text=Set\ a\ goal
 numComments=3

@@ -20,7 +20,7 @@ public class Goal {
         this.isActive = isActive;
 
     }
-
+    /* Set a goal */
     public void setGoal() {
         System.out.println("Goal set: " + goalType);
     }

@@ -12,9 +12,9 @@ public class DatabaseManager {
     private static final String URL =
         "jdbc:sqlserver://localhost:1433;instanceName=SQLEXPRESS;databaseName=fitness_log_app;encrypt=false;trustServerCertificate=true";
 
-    private static final String USER     = "sa";
-    private static final String PASSWORD = "Okcomputer"; // Change to your sa password
-
+    private static final String USER     = "sa";         //username to SQL server
+    private static final String PASSWORD = "Okcomputer"; //password
+    // attempt connection to SQL 
     public Connection connect() throws SQLException {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -23,7 +23,7 @@ public class DatabaseManager {
         }
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
-
+    //Print message if connection failed
     public boolean testConnection() {
         try (Connection conn = connect()) {
             return conn != null;
@@ -33,7 +33,7 @@ public class DatabaseManager {
         }
     }
 
-    // ── ADD MEAL + FOOD ───────────────────────────────────────────────
+    // add meal + food records
     public boolean addMealWithFood(int userId, String date, String mealType, String notes,
                                    String foodName, double quantity, String unit,
                                    int calories, double proteinG, double carbsG, double fatG) {
@@ -91,7 +91,7 @@ public class DatabaseManager {
         }
     }
 
-    // ── ADD WORKOUT + EXERCISE ────────────────────────────────────────
+    // add workout and exercises records
     public boolean addWorkoutWithExercise(int userId, String date, String workoutType, String notes,
                                           String exerciseName, int sets, int reps,
                                           double weightKg, int durationMin) {
@@ -147,8 +147,7 @@ public class DatabaseManager {
         }
     }
 
-    // ── GET HISTORY (meals + workouts combined) ───────────────────────
-    // Returns rows of: { Date, Type, Details, Calories }
+    // get history rows
     public List<String[]> getHistory(int userId) {
         List<String[]> rows = new ArrayList<>();
 
@@ -199,7 +198,7 @@ public class DatabaseManager {
         return rows;
     }
 
-    // ── GET GOALS ─────────────────────────────────────────────────────
+    // get goals
     public List<String[]> getGoals(int userId) {
         List<String[]> rows = new ArrayList<>();
         String sql = "SELECT goalId, goalType, targetValue, startDate, endDate, isActive FROM Goal WHERE userId = ?";
@@ -223,7 +222,7 @@ public class DatabaseManager {
         return rows;
     }
 
-    // ── ADD GOAL ──────────────────────────────────────────────────────
+    // add goals
     public boolean addGoal(int userId, String goalType, double targetValue, String startDate, String endDate) {
         String sql = "INSERT INTO Goal (userId, goalType, targetValue, startDate, endDate, isActive) VALUES (?, ?, ?, ?, ?, 1)";
         try (Connection conn = connect();
@@ -240,7 +239,7 @@ public class DatabaseManager {
         }
     }
 
-    // ── DELETE GOAL ───────────────────────────────────────────────────
+    //delete goals
     public boolean deleteGoal(int goalId) {
         String sql = "DELETE FROM Goal WHERE goalId = ?";
         try (Connection conn = connect();
@@ -253,8 +252,7 @@ public class DatabaseManager {
         }
     }
 
-    // ── TODAY'S SUMMARY ───────────────────────────────────────────────
-    // Returns int[3]: [totalCalories, workoutCount, mealCount]
+    // mini dashboard with today's summary
     public int[] getTodaySummary(int userId) {
         int[] result = {0, 0, 0};
         String today = new java.text.SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
@@ -295,8 +293,7 @@ public class DatabaseManager {
         return result;
     }
 
-    // ── WORKOUT HISTORY ───────────────────────────────────────────────
-    // Returns rows of: { Date, WorkoutType, ExerciseName, Sets, Reps, WeightKg, DurationMin }
+    // workout history
     public List<String[]> getWorkoutHistory(int userId) {
         List<String[]> rows = new ArrayList<>();
         String sql =
@@ -326,8 +323,7 @@ public class DatabaseManager {
         return rows;
     }
 
-    // ── FOOD HISTORY ──────────────────────────────────────────────────
-    // Returns rows of: { Date, MealType, FoodName, Quantity, Unit, Calories, ProteinG, CarbsG, FatG }
+    // food history
     public List<String[]> getFoodHistory(int userId) {
         List<String[]> rows = new ArrayList<>();
         String sql =

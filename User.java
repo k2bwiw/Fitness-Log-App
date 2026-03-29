@@ -13,11 +13,11 @@ public class User {
         this.password = password;
 
     }
-
+     /*Registration portal for users*/
     public void registerUser() {
         System.out.println("User registered: " + name);
     }
-
+    /*Login portal for already registered users*/
     public void loginUser() {
         System.out.println("User logged in: " + email);
     }

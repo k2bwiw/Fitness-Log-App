@@ -15,11 +15,11 @@ public class MealRecord {
         this.notes = notes;
 
     }
-
+    /*Adding meal */
     public void addMeal() {
         System.out.println("Meal added: " + mealType);
     }
-
+    /*Deleting meal record*/
     public void deleteMeal() {
         System.out.println("Meal deleted");
     }

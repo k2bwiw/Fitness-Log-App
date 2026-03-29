@@ -20,7 +20,7 @@ public class Exercise {
         this.durationMin = durationMin;
 
     }
-
+    /* Calculating the volume of trainings */
     public void calculateVolume() {
 
         if (sets > 0 && reps > 0) {
